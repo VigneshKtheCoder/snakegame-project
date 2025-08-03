@@ -57,4 +57,71 @@ const SnakeGame = () => {
   function moveSnake(snake) {
     const head = { ...snake[0] };
     head.x += direction.x;
-    head.y += direction.y;
+    head.y += direction.y;if (
+      head.x < 0 ||
+      head.y < 0 ||
+      head.x >= boardSize ||
+      head.y >= boardSize ||
+      snake.some((segment) => segment.x === head.x && segment.y === head.y)
+    ) {
+      setGameOver(true);
+      clearInterval(intervalRef.current);
+      return snake;
+    }
+
+    const newSnake = [head, ...snake];
+    if (head.x === food.x && head.y === food.y) {
+      setFood(generateFood());
+    } else {
+      newSnake.pop();
+    }
+    return newSnake;
+  }
+
+  const handleRestart = () => {
+    setSnake(initialSnake);
+    setFood(generateFood());
+    setGameOver(false);
+    setDirection(null);
+  };
+
+  return (
+    <div style={{ textAlign: "center", marginTop: "50px" }}>
+      <h1>Snake Game</h1>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: `repeat(${boardSize}, 25px)`,
+          width: boardSize * 25,
+          margin: "20px auto",
+          border: "2px solid #444",
+          backgroundColor: "#f0f0f0",
+        }}
+      >
+        {[...Array(boardSize * boardSize)].map((_, i) => {
+          const x = i % boardSize;
+          const y = Math.floor(i / boardSize);
+          const isSnake = snake.some((segment) => segment.x === x && segment.y === y);
+          const isFood = food.x === x && food.y === y;
+          return (
+            <div
+              key={i}
+              style={{
+                width: 25,
+                height: 25,
+                backgroundColor: isSnake ? "green" : isFood ? "red" : "white",
+                border: "1px solid #ddd",
+              }}
+            ></div>
+          );
+        })}
+      </div>
+      {gameOver && <h2 style={{ color: "red" }}>Game Over!</h2>}
+      <button onClick={handleRestart} style={{ padding: "10px 20px", fontSize: "16px" }}>
+        Restart
+      </button>
+    </div>
+  );
+};
+
+export default SnakeGame;
